@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuotesService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">microservice</a> &gt; <a href="index.source.html" class="el_package">com.telstra.codechallenge.service</a> &gt; <span class="el_source">QuotesService.java</span></div><h1>QuotesService.java</h1><pre class="source lang-java linenums">package com.telstra.codechallenge.service;
+import java.util.Arrays;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.telstra.codechallenge.model.Quote;
+
+@Service
+<span class="nc" id="L12">public class QuotesService {</span>
+	
+	  @Value(&quot;${quotes.base.url}&quot;)
+	  private String quotesBaseUrl;
+      
+	  @Autowired
+	  private RestTemplate restTemplate;
+	  
+	  /**
+	   * Returns an array of spring boot String. Taken from https://spring.io/guides/gs/consuming-rest/.
+	   *
+	   * @return - Quote array
+	   */
+	  public List&lt;Quote&gt; getQuotes() {
+<span class="nc" id="L26">		  Quote[] quote= restTemplate.getForObject(quotesBaseUrl+&quot;/api&quot;, Quote[].class); </span>
+<span class="nc" id="L27">		  return Arrays.asList(quote);</span>
+	  }
+	 
+
+	  /**
+	   * Returns a random spring boot quote. Taken from https://spring.io/guides/gs/consuming-rest/.
+	   *
+	   * @return - a quote array
+	   */
+	  public Quote getRandomQuote() {
+<span class="nc" id="L37">	   return restTemplate.getForObject(quotesBaseUrl+&quot;/api/random&quot;, Quote.class);</span>
+		
+	  }
+	  
+	  /**
+	   * when you are calling a get	Quotes it takes more time to spend response.
+	   * 
+	   * @return the custom response to your application.
+	   */
+	  
+	  @HystrixCommand(fallbackMethod = &quot;fallback_getQuotes&quot;)
+	  public String getHysrix() {
+		
+<span class="nc" id="L50">		return restTemplate.getForObject(&quot;http://localhost:8082/hystrix&quot;, String.class);</span>
+	  }
+	  /**
+	   *  the control goes to the fallback method.
+	   */
+	@SuppressWarnings(&quot;unused&quot;)
+	private String fallback_getQuotes() {
+<span class="nc" id="L57">		   return &quot;Request fails. It takes long time to response&quot;;</span>
+	  }
+
+
+	
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.0.201801022044</span></div></body></html>
